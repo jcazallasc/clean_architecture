@@ -1,0 +1,48 @@
+name: mypy-checker
+
+on: [ pull_request ]
+
+jobs:
+  mypy-checker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install mypy==1.7.1 \
+                      types-freezegun \
+                      types-requests \
+                      types-redis \
+                      types-python-dateutil \
+                      types-pytz \
+                      types-setuptools \
+                      types-chardet \
+                      types-retry \
+                      types-six \
+                      types-mock \
+                      types-cachetools
+
+      - name: Run MyPy
+        run: mypy .
+
+      - name: Get py changed files
+        id: py-changed-files
+        uses: tj-actions/changed-files@v42.0.4
+        with:
+          files: |
+            **.py
+
+      - name: Run MyPy strict in py added files
+        if: steps.py-changed-files.outputs.added_files_count > 0
+        env:
+          PY_ADDED_FILES: ${{ steps.py-changed-files.outputs.added_files }}
+        run: mypy --strict $PY_ADDED_FILES

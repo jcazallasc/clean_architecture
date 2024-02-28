@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==3.2.*"
+djangorestframework = "==3.12.*"
+gunicorn = "==20.0.*"
+inject = "==4.3.*"
+pydantic = "==1.8.*"
+mysqlclient = "==2.1.*"
+redis = "==4.3.*"
+celery = "==5.2.*"
+beautifulsoup4 = "==4.11.*"
+requests = "==2.28.*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

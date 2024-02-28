@@ -1,0 +1,55 @@
+name: CI
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v3
+
+      - name: Env file
+        run: mv .env.example .env
+
+      - name: flake8
+        run: docker-compose run clean_architecture flake8 .
+
+      - name: isort
+        run: docker-compose run clean_architecture isort -c .
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v3
+
+      - name: Env file
+        run: mv .env.example .env
+
+      - name: Build
+        run: docker-compose build
+
+      - name: Up
+        run: docker-compose up -d
+
+      - name: Migrate
+        run: docker-compose run clean_architecture python manage.py migrate
+
+      - name: Run Tests
+        run: docker-compose run clean_architecture python manage.py test
